@@ -39,19 +39,11 @@ func (e *exchange) History(baseCurrency string, date time.Time) (ExchangeRateRes
 		return ExchangeRateResponse{}, err
 	}
 	res.Body.Close()
-	reader := bufio.NewReader(res.Body)
-	var totalData []byte
-	for {
-		data, err := reader.ReadBytes('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return ExchangeRateResponse{}, err 
-		}
-		totalData = append(totalData, data...)
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return ExchangeRateResponse{}, err 
 	}
-	err = json.Unmarshal(totalData, &resData)
+	err = json.Unmarshal(data, &resData)
 	if err != nil {
 		return ExchangeRateResponse{}, err
 	}
